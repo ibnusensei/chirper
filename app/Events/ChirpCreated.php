@@ -19,9 +19,11 @@ class ChirpCreated implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(public Chirp $chirp)
+    public Chirp $chirp;
+
+    public function __construct(Chirp $chirp)
     {
-        //
+        $this->chirp = $chirp;
     }
 
     /**
@@ -29,15 +31,14 @@ class ChirpCreated implements ShouldBroadcast
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): array
+    public function broadcastOn(): Channel
     {
-        return [
-            new Channel('chirp-channel'),
-        ];
+        return new Channel('chirp-channel');
     }
 
-    public function broadcastAs() {
-        return 'chirp-event';
+    public function broadcastAs(): string
+    {
+        return 'chirp-created';
     }
     
 }

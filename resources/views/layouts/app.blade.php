@@ -18,18 +18,21 @@
     {{-- pusher --}}
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script>
-        // Enable pusher logging - don't include this in production
-        Pusher.logToConsole = true;
-
         var pusher = new Pusher('bc6ffac5593c1491a669', {
-            cluster: 'ap1'
-        });
-
-        var channel = pusher.subscribe('chirp-channel');
-        channel.bind('chirp-event', function(data) {
-            if (data.chirp.user_id != {{ Auth::user()->id }}) {
-                alert(data.chirp.message + " at " + data.chirp.created_at ) 
+            cluster: 'ap1',
+            authEndpoint: '/broadcasting/auth',
+            auth: {
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                }
             }
+        });
+        var channel = pusher.subscribe('private-App.Models.User.' + {{ Auth::user()->id }});
+
+        channel.bind('Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', function(data) {
+            console.log(data);
+            // Handle the notification data here
+            alert('You have a new notification!' + data.chirp_message);
         });
     </script>
 </head>

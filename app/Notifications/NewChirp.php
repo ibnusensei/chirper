@@ -5,6 +5,7 @@ namespace App\Notifications;
 use App\Models\Chirp;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
@@ -28,7 +29,7 @@ class NewChirp extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['broadcast'];
     }
 
     /**
@@ -54,5 +55,27 @@ class NewChirp extends Notification
         return [
             //
         ];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'sender_id' => $this->chirp->user->id,
+            'sender_name' => $this->chirp->user->name,
+            'chirp_id' => $this->chirp->id,
+            'chirp_message' => $this->chirp->message,
+        ]);
+    }
+
+    // broadcast type
+    public function broadcastType(): string
+    {
+        return 'chirp-notification';
+    }
+
+    // broadcast channel
+    public function broadcastChannel(): string
+    {
+        return 'chirp-channel.' . $this->chirp->user_id;
     }
 }
